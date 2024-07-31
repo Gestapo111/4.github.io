@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación: FENÓMENOS ELECTROMAGNÉTICOS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación: FENÓMENOS ELECTROMAGNÉTICOS</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+        <div id="results"></div>
+    </div>
+    <footer>
+        &copy; derechos reservados Prof. Alberto Sanchez
+    </footer>
+    <script>
+        const quizData = [
+            {
+                question: "¿Qué es un campo magnético?",
+                answers: [
+                    { text: "Una región donde una fuerza magnética actúa sobre un objeto.", correct: true },
+                    { text: "Una región donde una fuerza eléctrica actúa sobre un objeto.", correct: false },
+                    { text: "Una corriente eléctrica que fluye a través de un conductor.", correct: false },
+                    { text: "La energía almacenada en un capacitor.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué provoca un campo magnético variable?",
+                answers: [
+                    { text: "Una corriente alterna.", correct: true },
+                    { text: "Una corriente continua.", correct: false },
+                    { text: "Un campo eléctrico constante.", correct: false },
+                    { text: "Un aumento en la temperatura.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué instrumento se usa para medir el campo magnético?",
+                answers: [
+                    { text: "Multímetro.", correct: false },
+                    { text: "Barómetro.", correct: false },
+                    { text: "Gaussímetro.", correct: true },
+                    { text: "Amperímetro.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de Faraday de la inducción electromagnética?",
+                answers: [
+                    { text: "La corriente inducida en un circuito es proporcional al cambio en el flujo magnético.", correct: true },
+                    { text: "La fuerza entre dos cargas es directamente proporcional al producto de las cargas e inversamente proporcional al cuadrado de la distancia entre ellas.", correct: false },
+                    { text: "La corriente en un conductor es directamente proporcional al voltaje aplicado e inversamente proporcional a la resistencia.", correct: false },
+                    { text: "La fuerza magnética sobre una carga en movimiento es proporcional a la carga y la velocidad.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de Lenz?",
+                answers: [
+                    { text: "La corriente inducida en un circuito siempre fluye en una dirección tal que su campo magnético se opone al cambio en el flujo magnético.", correct: true },
+                    { text: "La fuerza entre dos cargas es directamente proporcional al producto de las cargas e inversamente proporcional al cuadrado de la distancia entre ellas.", correct: false },
+                    { text: "La corriente en un conductor es directamente proporcional al voltaje aplicado e inversamente proporcional a la resistencia.", correct: false },
+                    { text: "La fuerza magnética sobre una carga en movimiento es proporcional a la carga y la velocidad.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un solenoide?",
+                answers: [
+                    { text: "Una bobina de alambre que produce un campo magnético cuando pasa una corriente eléctrica a través de ella.", correct: true },
+                    { text: "Un dispositivo que almacena carga eléctrica.", correct: false },
+                    { text: "Un dispositivo que convierte la energía eléctrica en luz.", correct: false },
+                    { text: "Un dispositivo que mide la corriente eléctrica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la inductancia?",
+                answers: [
+                    { text: "La propiedad de un circuito que se opone a cualquier cambio en la corriente que fluye a través de él.", correct: true },
+                    { text: "La propiedad de un material que permite el flujo de corriente.", correct: false },
+                    { text: "La propiedad de un circuito que se opone al flujo de corriente continua.", correct: false },
+                    { text: "La propiedad de un material que almacena carga eléctrica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un transformador?",
+                answers: [
+                    { text: "Un dispositivo que cambia el voltaje de una corriente alterna.", correct: true },
+                    { text: "Un dispositivo que convierte la corriente alterna en corriente continua.", correct: false },
+                    { text: "Un dispositivo que mide la potencia eléctrica.", correct: false },
+                    { text: "Un dispositivo que almacena energía eléctrica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la resonancia en un circuito eléctrico?",
+                answers: [
+                    { text: "La condición en la cual la inductancia y la capacitancia de un circuito se cancelan mutuamente, resultando en una máxima transferencia de energía.", correct: true },
+                    { text: "La condición en la cual la resistencia de un circuito es mínima.", correct: false },
+                    { text: "La condición en la cual la corriente en un circuito es máxima.", correct: false },
+                    { text: "La condición en la cual la potencia en un circuito es máxima.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la constante de Planck?",
+                answers: [
+                    { text: "Una constante fundamental que relaciona la energía de un fotón con la frecuencia de la radiación electromagnética.", correct: true },
+                    { text: "Una constante fundamental que relaciona la fuerza entre dos cargas.", correct: false },
+                    { text: "Una constante fundamental que relaciona el voltaje y la corriente en un circuito.", correct: false },
+                    { text: "Una constante fundamental que relaciona la temperatura y la energía térmica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la teoría electromagnética de Maxwell?",
+                answers: [
+                    { text: "Una teoría que unifica los campos eléctricos y magnéticos en un solo marco matemático.", correct: true },
+                    { text: "Una teoría que explica la fuerza entre dos cargas.", correct: false },
+                    { text: "Una teoría que explica el comportamiento de la corriente eléctrica en un conductor.", correct: false },
+                    { text: "Una teoría que explica la propagación del sonido en un medio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una onda electromagnética?",
+                answers: [
+                    { text: "Una onda que consiste en campos eléctricos y magnéticos que se propagan a través del espacio.", correct: true },
+                    { text: "Una onda que consiste en variaciones de presión en un medio.", correct: false },
+                    { text: "Una onda que consiste en variaciones de temperatura en un medio.", correct: false },
+                    { text: "Una onda que consiste en variaciones de densidad en un medio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la frecuencia de una onda electromagnética?",
+                answers: [
+                    { text: "El número de oscilaciones por segundo.", correct: true },
+                    { text: "La distancia entre dos crestas consecutivas.", correct: false },
+                    { text: "La amplitud de la onda.", correct: false },
+                    { text: "La velocidad de propagación.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la longitud de onda?",
+                answers: [
+                    { text: "La distancia entre dos crestas consecutivas de una onda.", correct: true },
+                    { text: "La distancia entre dos oscilaciones consecutivas de una onda.", correct: false },
+                    { text: "La distancia entre la cresta y el valle de una onda.", correct: false },
+                    { text: "La distancia entre el origen y el punto máximo de una onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la amplitud de una onda?",
+                answers: [
+                    { text: "La altura máxima de una onda desde su posición de equilibrio.", correct: true },
+                    { text: "La distancia entre dos crestas consecutivas de una onda.", correct: false },
+                    { text: "La distancia entre dos oscilaciones consecutivas de una onda.", correct: false },
+                    { text: "La distancia entre la cresta y el valle de una onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la velocidad de propagación de una onda?",
+                answers: [
+                    { text: "La rapidez con la que una onda se mueve a través de un medio.", correct: true },
+                    { text: "La altura máxima de una onda desde su posición de equilibrio.", correct: false },
+                    { text: "La distancia entre dos crestas consecutivas de una onda.", correct: false },
+                    { text: "La distancia entre dos oscilaciones consecutivas de una onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la polarización de una onda electromagnética?",
+                answers: [
+                    { text: "La orientación de los campos eléctricos y magnéticos de una onda electromagnética.", correct: true },
+                    { text: "La rapidez con la que una onda se mueve a través de un medio.", correct: false },
+                    { text: "La altura máxima de una onda desde su posición de equilibrio.", correct: false },
+                    { text: "La distancia entre dos crestas consecutivas de una onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la interferencia de ondas?",
+                answers: [
+                    { text: "El fenómeno que ocurre cuando dos ondas se superponen y se combinan para formar una nueva onda.", correct: true },
+                    { text: "El fenómeno que ocurre cuando una onda se refleja en una superficie.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se refracta al pasar de un medio a otro.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se difracta alrededor de un obstáculo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la difracción de ondas?",
+                answers: [
+                    { text: "El fenómeno que ocurre cuando una onda se encuentra con un obstáculo y se dobla alrededor de él.", correct: true },
+                    { text: "El fenómeno que ocurre cuando dos ondas se superponen y se combinan para formar una nueva onda.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se refleja en una superficie.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se refracta al pasar de un medio a otro.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la reflexión de ondas?",
+                answers: [
+                    { text: "El fenómeno que ocurre cuando una onda se encuentra con una superficie y se devuelve hacia el medio de origen.", correct: true },
+                    { text: "El fenómeno que ocurre cuando una onda se dobla alrededor de un obstáculo.", correct: false },
+                    { text: "El fenómeno que ocurre cuando dos ondas se superponen y se combinan para formar una nueva onda.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se refracta al pasar de un medio a otro.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la refracción de ondas?",
+                answers: [
+                    { text: "El fenómeno que ocurre cuando una onda cambia de dirección al pasar de un medio a otro.", correct: true },
+                    { text: "El fenómeno que ocurre cuando una onda se refleja en una superficie.", correct: false },
+                    { text: "El fenómeno que ocurre cuando una onda se difracta alrededor de un obstáculo.", correct: false },
+                    { text: "El fenómeno que ocurre cuando dos ondas se superponen y se combinan para formar una nueva onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de Snell?",
+                answers: [
+                    { text: "La relación entre los ángulos de incidencia y refracción y los índices de refracción de los dos medios.", correct: true },
+                    { text: "La relación entre la frecuencia y la longitud de onda de una onda.", correct: false },
+                    { text: "La relación entre la amplitud y la velocidad de propagación de una onda.", correct: false },
+                    { text: "La relación entre la intensidad y la energía de una onda.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la intensidad de una onda electromagnética?",
+                answers: [
+                    { text: "La cantidad de energía transportada por una onda por unidad de tiempo y área.", correct: true },
+                    { text: "La altura máxima de una onda desde su posición de equilibrio.", correct: false },
+                    { text: "La distancia entre dos crestas consecutivas de una onda.", correct: false },
+                    { text: "La rapidez con la que una onda se mueve a través de un medio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ecuación de Maxwell?",
+                answers: [
+                    { text: "Un conjunto de ecuaciones que describen cómo los campos eléctricos y magnéticos se generan y se modifican entre sí.", correct: true },
+                    { text: "Una ecuación que relaciona la fuerza entre dos cargas y la distancia entre ellas.", correct: false },
+                    { text: "Una ecuación que relaciona la corriente, el voltaje y la resistencia en un circuito.", correct: false },
+                    { text: "Una ecuación que describe el comportamiento de la energía térmica en un sistema.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la constante dieléctrica?",
+                answers: [
+                    { text: "Una medida de la capacidad de un material para almacenar energía eléctrica en un campo eléctrico.", correct: true },
+                    { text: "Una medida de la resistencia de un material al flujo de corriente.", correct: false },
+                    { text: "Una medida de la capacidad de un material para conducir electricidad.", correct: false },
+                    { text: "Una medida de la capacidad de un material para resistir el flujo de calor.", correct: false }
+                ]
+            }
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 3;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            quizData.forEach((data, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question';
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerText = `${index + 1}. ${data.question}`;
+                questionContainer.appendChild(questionTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                shuffle(data.answers).forEach(answer => {
+                    const option = document.createElement('li');
+                    const optionLabel = document.createElement('label');
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question${index}`;
+                    optionInput.value = answer.correct;
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(answer.text));
+                    option.appendChild(optionLabel);
+                    optionsList.appendChild(option);
+                });
+
+                questionContainer.appendChild(optionsList);
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        function submitQuiz() {
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('results');
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
+            let score = 0;
+
+            quizData.forEach((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                if (selected === true) {
+                    score += 0.4; // Each correct answer is worth 0.4 points
+                }
+            });
+
+            score = Math.round(score * 10) / 10; // Round to one decimal place
+            let feedback = quizData.map((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                let result;
+                if (selected === null) {
+                    result = "No contestada";
+                } else if (selected === true) {
+                    result = "Correcta";
+                } else {
+                    result = "Incorrecta";
+                }
+                return `<p>${index + 1}. ${result}</p>`;
+            }).join("");
+
+            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+            }
+        }
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        loadQuiz();
+    </script>
+</body>
+</html>
