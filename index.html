@@ -7,676 +7,649 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none; /* Bloquea selección de texto */
         }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            display: none; /* Oculto hasta que se ingrese el NIE válido */
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+        .input-field {
+            margin-bottom: 10px;
+        }
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Cronómetro flotante */
         #timer {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
             padding: 10px;
+            background-color: green;
+            color: white;
             font-size: 18px;
             border-radius: 5px;
         }
-        .hidden {
-            display: none;
+        /* Estilo para los números de preguntas incorrectas */
+        .incorrect-answers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .question {
-            margin-bottom: 20px;
-        }
-        .question h3 {
-            margin-bottom: 10px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        #resultsModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 500;
+        .incorrect-answers div {
+            width: 18%;
+            text-align: center;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+    <h1>Evaluación Unidad 4: Fenómenos Electromagnéticos</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+    </div>
+    <footer>
+        &copy; Derechos Reservados Prof. Alberto Sanchez
+    </footer>
 
-    <div class="container">
-        <div id="studentInfoForm">
-            <h2>Información del Estudiante</h2>
-            <form id="infoForm">
-                <label for="name">Nombre del Estudiante:</label>
-                <input type="text" id="name" required><br><br>
+    <!-- Modal para solicitar nombre y NIE -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h2>Por favor, ingresa tus datos</h2>
+            <div class="input-field">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" required>
+            </div>
+            <div class="input-field">
                 <label for="nie">NIE:</label>
-                <input type="text" id="nie" required><br><br>
-                <label for="unit">Unidad Evaluada:</label>
-                <input type="text" id="unit" value="Unidad 4: Fenómenos Electromagnéticos" readonly><br><br>
-                <button type="submit">Iniciar Evaluación</button>
-            </form>
+                <input type="text" id="nie" required>
+            </div>
+            <button id="startQuiz">Comenzar Evaluación</button>
         </div>
-
-        <div id="quiz" class="hidden">
-            <h2>Evaluación Unidad 4: Fenómenos Electromagnéticos</h2>
-
-            <div id="questions-container"></div>
-
-            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
-        </div>
-
-        <div id="resultsModal">
-            <h2>Resultados</h2>
-            <p id="date"></p>
-            <p id="timeTaken"></p>
-            <p id="unitEvaluated"></p>
-            <p id="studentName"></p>
-            <p id="studentNIE"></p>
-            <p id="score"></p>
-            <p id="incorrectAnswers"></p>
-            <button id="closeModal">Cerrar</button>
-        </div>
-
-        <div id="overlay"></div>
     </div>
 
-    <script>
-        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
-        const maxTime = 30 * 60; // 30 minutos en segundos
-        let timeRemaining = maxTime;
-        const timerElement = document.getElementById('time');
-        let startTime;
+    <!-- Modal de resultados -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultados de la Evaluación</h2>
+            <p id="modalName"></p>
+            <p id="modalNIE"></p>
+            <h3>Preguntas incorrectas:</h3>
+            <div id="modalIncorrectAnswers" class="incorrect-answers"></div>
+            <h3>Detalles:</h3>
+            <p id="modalDetails"></p>
+            <h3>Intentos de manipulación detectados:</h3>
+            <p id="manipulationCount"></p>
+            <h3>Reintentos:</h3>
+            <p id="attemptCount"></p>
+        </div>
+    </div>
 
-        const questions = [
-            // Indicador 4.1
+    <div id="timer">30:00</div>
+
+    <script>
+        const quizData = [
             {
-                id: 'q1',
-                indicator: 'Indicador 4.1: Indaga y explica con interés el origen del campo magnético de la Tierra y el de algunos materiales del entorno.',
-                question: "¿Cuál es la principal causa del campo magnético de la Tierra?",
-                options: [
-                    { value: 'a', text: "El movimiento de los continentes." },
-                    { value: 'b', text: "El flujo de hierro fundido en el núcleo externo." },
-                    { value: 'c', text: "La rotación de la Tierra." },
-                    { value: 'd', text: "La atracción gravitacional de la Luna." }
-                ]
-            },
-            {
-                id: 'q2',
-                indicator: 'Indicador 4.1: Indaga y explica con interés el origen del campo magnético de la Tierra y el de algunos materiales del entorno.',
-                question: "¿Cómo se denomina el campo magnético de la Tierra?",
-                options: [
-                    { value: 'a', text: "Geofield" },
-                    { value: 'b', text: "Geomagnetismo" },
-                    { value: 'c', text: "Magnetósfera" },
-                    { value: 'd', text: "Magnetar" }
-                ]
-            },
-            {
-                id: 'q3',
-                indicator: 'Indicador 4.1: Indaga y explica con interés el origen del campo magnético de la Tierra y el de algunos materiales del entorno.',
-                question: "¿Cuál de los siguientes materiales es ferromagnético?",
-                options: [
-                    { value: 'a', text: "Hierro" },
-                    { value: 'b', text: "Cobre" },
-                    { value: 'c', text: "Plata" },
-                    { value: 'd', text: "Aluminio" }
-                ]
-            },
-            {
-                id: 'q4',
-                indicator: 'Indicador 4.1: Indaga y explica con interés el origen del campo magnético de la Tierra y el de algunos materiales del entorno.',
-                question: "¿Qué sucede cuando se corta un imán en dos partes?",
-                options: [
-                    { value: 'a', text: "Se obtiene un monopolo magnético." },
-                    { value: 'b', text: "Cada parte se convierte en un dipolo magnético completo." },
-                    { value: 'c', text: "Se pierde la capacidad magnética." },
-                    { value: 'd', text: "El magnetismo se concentra en un extremo." }
-                ]
-            },
-            {
-                id: 'q5',
-                indicator: 'Indicador 4.1: Indaga y explica con interés el origen del campo magnético de la Tierra y el de algunos materiales del entorno.',
-                question: "¿Cuál es la relación entre la temperatura y la magnetización de un material ferromagnético?",
-                options: [
-                    { value: 'a', text: "La magnetización aumenta con la temperatura." },
-                    { value: 'b', text: "La magnetización disminuye con la temperatura." },
-                    { value: 'c', text: "No hay relación." },
-                    { value: 'd', text: "Depende del material." }
-                ]
-            },
-            // Indicador 4.2
-            {
-                id: 'q6',
-                indicator: 'Indicador 4.2: Representa, analiza y explica adecuadamente la Ley de Gauss para el magnetismo.',
-                question: "¿Qué establece la Ley de Gauss para el magnetismo?",
-                options: [
-                    { value: 'a', text: "El flujo magnético total a través de una superficie cerrada es cero." },
-                    { value: 'b', text: "El flujo magnético total a través de una superficie cerrada es constante." },
-                    { value: 'c', text: "El flujo magnético total a través de una superficie cerrada depende de la corriente." },
-                    { value: 'd', text: "El flujo magnético total a través de una superficie cerrada es infinito." }
-                ]
-            },
-            {
-                id: 'q7',
-                indicator: 'Indicador 4.2: Representa, analiza y explica adecuadamente la Ley de Gauss para el magnetismo.',
-                question: "¿Por qué la Ley de Gauss para el magnetismo implica que no existen monopolos magnéticos?",
-                options: [
-                    { value: 'a', text: "Porque el flujo magnético neto siempre es cero." },
-                    { value: 'b', text: "Porque los polos magnéticos siempre existen en pares." },
-                    { value: 'c', text: "Porque los monopolos magnéticos no tienen carga." },
-                    { value: 'd', text: "Porque el campo magnético es uniforme." }
-                ]
-            },
-            {
-                id: 'q8',
-                indicator: 'Indicador 4.2: Representa, analiza y explica adecuadamente la Ley de Gauss para el magnetismo.',
-                question: "¿Cómo se representa matemáticamente la Ley de Gauss para el magnetismo?",
-                options: [
-                    { value: 'a', text: "∮B·dA = 0" },
-                    { value: 'b', text: "∮E·dA = q/ε₀" },
-                    { value: 'c', text: "∮B·dl = μ₀I" },
-                    { value: 'd', text: "∮E·dl = -dΦB/dt" }
-                ]
-            },
-            {
-                id: 'q9',
-                indicator: 'Indicador 4.2: Representa, analiza y explica adecuadamente la Ley de Gauss para el magnetismo.',
-                question: "¿Qué implica la Ley de Gauss para el magnetismo sobre las líneas de campo magnético?",
-                options: [
-                    { value: 'a', text: "Las líneas de campo magnético no tienen origen ni fin." },
-                    { value: 'b', text: "Las líneas de campo magnético comienzan y terminan en cargas." },
-                    { value: 'c', text: "Las líneas de campo magnético son perpendiculares a la superficie." },
-                    { value: 'd', text: "Las líneas de campo magnético se dispersan infinitamente." }
-                ]
-            },
-            {
-                id: 'q10',
-                indicator: 'Indicador 4.2: Representa, analiza y explica adecuadamente la Ley de Gauss para el magnetismo.',
-                question: "¿Cuál de las siguientes afirmaciones es consecuencia directa de la Ley de Gauss para el magnetismo?",
-                options: [
-                    { value: 'a', text: "El campo magnético es un campo vectorial divergente." },
-                    { value: 'b', text: "El campo magnético es un campo vectorial sin divergencia." },
-                    { value: 'c', text: "El campo magnético es un campo vectorial con carga neta." },
-                    { value: 'd', text: "El campo magnético es un campo escalar sin divergencia." }
-                ]
-            },
-            // Indicador 4.3
-            {
-                id: 'q11',
-                indicator: 'Indicador 4.3: Interpreta y resuelve con persistencia problemas relacionados con la fuerza magnética.',
-                question: "¿Qué establece la ley de Lorentz sobre la fuerza magnética?",
-                options: [
-                    { value: 'a', text: "La fuerza magnética es perpendicular a la velocidad de la carga y al campo magnético." },
-                    { value: 'b', text: "La fuerza magnética es paralela al campo magnético." },
-                    { value: 'c', text: "La fuerza magnética depende del cuadrado de la velocidad." },
-                    { value: 'd', text: "La fuerza magnética es inversamente proporcional a la carga de la partícula." }
-                ]
-            },
-            {
-                id: 'q12',
-                indicator: 'Indicador 4.3: Interpreta y resuelve con persistencia problemas relacionados con la fuerza magnética.',
-                question: "¿Cuál es la dirección de la fuerza magnética sobre una carga positiva en movimiento en un campo magnético?",
-                options: [
-                    { value: 'a', text: "Perpendicular tanto a la velocidad de la carga como al campo magnético." },
-                    { value: 'b', text: "En la misma dirección que la velocidad de la carga." },
-                    { value: 'c', text: "Paralela al campo magnético." },
-                    { value: 'd', text: "Perpendicular al campo magnético pero en la dirección de la velocidad de la carga." }
-                ]
-            },
-            {
-                id: 'q13',
-                indicator: 'Indicador 4.3: Interpreta y resuelve con persistencia problemas relacionados con la fuerza magnética.',
-                question: "¿Qué sucede con la magnitud de la fuerza magnética si se duplica la velocidad de la carga en un campo magnético constante?",
-                options: [
-                    { value: 'a', text: "La fuerza magnética se duplica." },
-                    { value: 'b', text: "La fuerza magnética se reduce a la mitad." },
-                    { value: 'c', text: "La fuerza magnética se cuadruplica." },
-                    { value: 'd', text: "La fuerza magnética permanece constante." }
-                ]
-            },
-            {
-                id: 'q14',
-                indicator: 'Indicador 4.3: Interpreta y resuelve con persistencia problemas relacionados con la fuerza magnética.',
-                question: "Una partícula con carga positiva se mueve hacia el norte en un campo magnético que apunta hacia abajo (hacia la Tierra). ¿En qué dirección actúa la fuerza magnética sobre la partícula?",
-                options: [
-                    { value: 'a', text: "Hacia el este." },
-                    { value: 'b', text: "Hacia el oeste." },
-                    { value: 'c', text: "Hacia arriba." },
-                    { value: 'd', text: "Hacia abajo." }
-                ]
-            },
-            {
-                id: 'q15',
-                indicator: 'Indicador 4.3: Interpreta y resuelve con persistencia problemas relacionados con la fuerza magnética.',
-                question: "¿Cuál es la fórmula para calcular la fuerza magnética sobre una carga en movimiento en un campo magnético?",
-                options: [
-                    { value: 'a', text: "F = q(v × B)" },
-                    { value: 'b', text: "F = qE" },
-                    { value: 'c', text: "F = qvB" },
-                    { value: 'd', text: "F = qE/v" }
-                ]
-            },
-            // Indicador 4.4
-            {
-                id: 'q16',
-                indicator: 'Indicador 4.4: Explica correctamente el origen atómico del campo magnético.',
-                question: "¿Cuál es la fuente primaria del campo magnético a nivel atómico?",
-                options: [
-                    { value: 'a', text: "El movimiento de los electrones alrededor del núcleo." },
-                    { value: 'b', text: "La interacción entre protones y neutrones." },
-                    { value: 'c', text: "El campo gravitacional del núcleo." },
-                    { value: 'd', text: "La presencia de quarks en los nucleones." }
-                ]
-            },
-            {
-                id: 'q17',
-                indicator: 'Indicador 4.4: Explica correctamente el origen atómico del campo magnético.',
-                question: "¿Qué es el momento magnético orbital?",
-                options: [
-                    { value: 'a', text: "La cantidad de movimiento del electrón en su órbita." },
-                    { value: 'b', text: "El campo magnético generado por el electrón en su órbita." },
-                    { value: 'c', text: "La fuerza de atracción entre el núcleo y el electrón." },
-                    { value: 'd', text: "El torque sobre un electrón en un campo eléctrico." }
-                ]
-            },
-            {
-                id: 'q18',
-                indicator: 'Indicador 4.4: Explica correctamente el origen atómico del campo magnético.',
-                question: "¿Cómo se denomina el campo magnético generado por el spin de un electrón?",
-                options: [
-                    { value: 'a', text: "Campo magnético intrínseco." },
-                    { value: 'b', text: "Campo magnético orbital." },
-                    { value: 'c', text: "Campo gravitacional." },
-                    { value: 'd', text: "Campo de interacción fuerte." }
-                ]
-            },
-            {
-                id: 'q19',
-                indicator: 'Indicador 4.4: Explica correctamente el origen atómico del campo magnético.',
-                question: "¿Qué relación existe entre el spin de un electrón y su campo magnético?",
-                options: [
-                    { value: 'a', text: "El spin genera un pequeño campo magnético debido al movimiento de la carga." },
-                    { value: 'b', text: "El spin no afecta el campo magnético." },
-                    { value: 'c', text: "El spin genera un campo eléctrico." },
-                    { value: 'd', text: "El spin cancela cualquier campo magnético." }
-                ]
-            },
-            {
-                id: 'q20',
-                indicator: 'Indicador 4.4: Explica correctamente el origen atómico del campo magnético.',
-                question: "¿Qué es el momento dipolar magnético?",
-                options: [
-                    { value: 'a', text: "La medida del campo magnético generado por un dipolo magnético." },
-                    { value: 'b', text: "La fuerza entre dos polos magnéticos." },
-                    { value: 'c', text: "La energía almacenada en un campo magnético." },
-                    { value: 'd', text: "La distancia entre los polos de un imán." }
-                ]
-            },
-            // Indicador 4.5
-            {
-                id: 'q21',
-                indicator: 'Indicador 4.5: Indaga y clasifica con certeza los distintos tipos de imanes determinando sus propiedades: atracción, repulsión, inducción, fuerza, polarización, entre otras.',
-                question: "¿Qué es un imán permanente?",
-                options: [
-                    { value: 'a', text: "Un imán que mantiene su magnetismo sin necesidad de una corriente eléctrica." },
-                    { value: 'b', text: "Un imán que requiere de una corriente eléctrica para funcionar." },
-                    { value: 'c', text: "Un imán que solo funciona a bajas temperaturas." },
-                    { value: 'd', text: "Un imán que solo funciona en presencia de otro imán." }
-                ]
-            },
-            {
-                id: 'q22',
-                indicator: 'Indicador 4.5: Indaga y clasifica con certeza los distintos tipos de imanes determinando sus propiedades: atracción, repulsión, inducción, fuerza, polarización, entre otras.',
-                question: "¿Cuál es la diferencia entre un imán natural y un imán artificial?",
-                options: [
-                    { value: 'a', text: "Los imanes naturales ocurren en la naturaleza, mientras que los artificiales son creados por el hombre." },
-                    { value: 'b', text: "Los imanes naturales son más fuertes que los artificiales." },
-                    { value: 'c', text: "Los imanes naturales son temporales, mientras que los artificiales son permanentes." },
-                    { value: 'd', text: "Los imanes naturales solo existen en la Tierra, mientras que los artificiales están en el espacio." }
-                ]
-            },
-            {
-                id: 'q23',
-                indicator: 'Indicador 4.5: Indaga y clasifica con certeza los distintos tipos de imanes determinando sus propiedades: atracción, repulsión, inducción, fuerza, polarización, entre otras.',
-                question: "¿Qué ocurre cuando dos polos iguales de dos imanes se acercan?",
-                options: [
-                    { value: 'a', text: "Se repelen." },
-                    { value: 'b', text: "Se atraen." },
-                    { value: 'c', text: "Se neutralizan." },
-                    { value: 'd', text: "No hay interacción." }
-                ]
-            },
-            {
-                id: 'q24',
-                indicator: 'Indicador 4.5: Indaga y clasifica con certeza los distintos tipos de imanes determinando sus propiedades: atracción, repulsión, inducción, fuerza, polarización, entre otras.',
-                question: "¿Qué propiedad de un imán determina la fuerza de atracción o repulsión entre dos imanes?",
-                options: [
-                    { value: 'a', text: "La magnitud de sus polos magnéticos." },
-                    { value: 'b', text: "La temperatura del ambiente." },
-                    { value: 'c', text: "La velocidad relativa entre ellos." },
-                    { value: 'd', text: "El tipo de material de los imanes." }
-                ]
-            },
-            {
-                id: 'q25',
-                indicator: 'Indicador 4.5: Indaga y clasifica con certeza los distintos tipos de imanes determinando sus propiedades: atracción, repulsión, inducción, fuerza, polarización, entre otras.',
-                question: "¿Qué sucede cuando un imán es expuesto a altas temperaturas?",
-                options: [
-                    { value: 'a', text: "Puede perder sus propiedades magnéticas." },
-                    { value: 'b', text: "Se vuelve más fuerte." },
-                    { value: 'c', text: "No se ve afectado." },
-                    { value: 'd', text: "Cambia la dirección de sus polos." }
-                ]
-            },
-            // Indicador 4.6
-            {
-                id: 'q26',
-                indicator: 'Indicador 4.6: Explica y valora la importancia de la integración de los fenómenos eléctricos y magnéticos en las aplicaciones tecnológicas.',
-                question: "¿Qué es un electroimán?",
-                options: [
-                    { value: 'a', text: "Un imán que funciona con electricidad." },
-                    { value: 'b', text: "Un imán natural que no requiere electricidad." },
-                    { value: 'c', text: "Un imán que pierde su magnetismo en ausencia de electricidad." },
-                    { value: 'd', text: "Un imán que solo funciona a bajas temperaturas." }
-                ]
-            },
-            {
-                id: 'q27',
-                indicator: 'Indicador 4.6: Explica y valora la importancia de la integración de los fenómenos eléctricos y magnéticos en las aplicaciones tecnológicas.',
-                question: "¿Cuál es la aplicación de un transformador en la vida cotidiana?",
-                options: [
-                    { value: 'a', text: "Convertir el voltaje de la corriente eléctrica para su uso en diferentes dispositivos." },
-                    { value: 'b', text: "Generar electricidad a partir de energía solar." },
-                    { value: 'c', text: "Almacenar energía en baterías." },
-                    { value: 'd', text: "Reducir el consumo de electricidad en el hogar." }
-                ]
-            },
-            {
-                id: 'q28',
-                indicator: 'Indicador 4.6: Explica y valora la importancia de la integración de los fenómenos eléctricos y magnéticos en las aplicaciones tecnológicas.',
-                question: "¿Cómo se utiliza el principio del electromagnetismo en los motores eléctricos?",
-                options: [
-                    { value: 'a', text: "Para convertir energía eléctrica en energía mecánica." },
-                    { value: 'b', text: "Para convertir energía mecánica en energía eléctrica." },
-                    { value: 'c', text: "Para almacenar energía en un campo magnético." },
-                    { value: 'd', text: "Para reducir la resistencia en un circuito." }
-                ]
-            },
-            {
-                id: 'q29',
-                indicator: 'Indicador 4.6: Explica y valora la importancia de la integración de los fenómenos eléctricos y magnéticos en las aplicaciones tecnológicas.',
-                question: "¿Qué dispositivo utiliza un electroimán para producir sonido?",
-                options: [
-                    { value: 'a', text: "Un altavoz." },
-                    { value: 'b', text: "Un transformador." },
-                    { value: 'c', text: "Un motor eléctrico." },
-                    { value: 'd', text: "Un generador eléctrico." }
-                ]
-            },
-            {
-                id: 'q30',
-                indicator: 'Indicador 4.6: Explica y valora la importancia de la integración de los fenómenos eléctricos y magnéticos en las aplicaciones tecnológicas.',
                 question: "¿Cómo se genera un campo magnético en un conductor?",
-                options: [
-                    { value: 'a', text: "Cuando una corriente eléctrica fluye a través de él." },
-                    { value: 'b', text: "Cuando está en movimiento." },
-                    { value: 'c', text: "Cuando está a alta temperatura." },
-                    { value: 'd', text: "Cuando está en reposo." }
-                ]
-            },
-            // Indicador 4.7
-            {
-                id: 'q31',
-                indicator: 'Indicador 4.7: Explica con interés y curiosidad las leyes de Faraday y Lentz y sus aplicaciones para el desarrollo tecnológico.',
-                question: "¿Qué establece la Ley de Faraday sobre la inducción electromagnética?",
-                options: [
-                    { value: 'a', text: "Un cambio en el flujo magnético induce una corriente eléctrica." },
-                    { value: 'b', text: "Un cambio en la corriente induce un campo magnético." },
-                    { value: 'c', text: "Un campo magnético constante induce una corriente eléctrica." },
-                    { value: 'd', text: "Un cambio en la temperatura induce una corriente eléctrica." }
+                answers: [
+                    { text: "Cuando una corriente eléctrica fluye a través de él.", correct: true },
+                    { text: "Cuando está en movimiento.", correct: false },
+                    { text: "Cuando está a alta temperatura.", correct: false },
+                    { text: "Cuando está en reposo.", correct: false }
                 ]
             },
             {
-                id: 'q32',
-                indicator: 'Indicador 4.7: Explica con interés y curiosidad las leyes de Faraday y Lentz y sus aplicaciones para el desarrollo tecnológico.',
-                question: "¿Cómo describe la Ley de Lenz la dirección de la corriente inducida?",
-                options: [
-                    { value: 'a', text: "La corriente inducida se opone al cambio en el flujo magnético que la produjo." },
-                    { value: 'b', text: "La corriente inducida sigue la dirección del cambio en el flujo magnético." },
-                    { value: 'c', text: "La corriente inducida no depende del flujo magnético." },
-                    { value: 'd', text: "La corriente inducida es perpendicular al cambio en el flujo magnético." }
+                question: "¿Cuál es la fórmula para calcular la fuerza magnética sobre una carga en movimiento en un campo magnético?",
+                answers: [
+                    { text: "F = q(v × B)", correct: true },
+                    { text: "F = qE", correct: false },
+                    { text: "F = qvB", correct: false },
+                    { text: "F = qE/v", correct: false }
                 ]
             },
             {
-                id: 'q33',
-                indicator: 'Indicador 4.7: Explica con interés y curiosidad las leyes de Faraday y Lentz y sus aplicaciones para el desarrollo tecnológico.',
-                question: "¿Qué fenómeno explica la Ley de Faraday en un generador eléctrico?",
-                options: [
-                    { value: 'a', text: "La conversión de energía mecánica en energía eléctrica." },
-                    { value: 'b', text: "La conversión de energía eléctrica en energía mecánica." },
-                    { value: 'c', text: "La acumulación de carga en un condensador." },
-                    { value: 'd', text: "La disminución de la resistencia en un circuito." }
-                ]
-            },
-            {
-                id: 'q34',
-                indicator: 'Indicador 4.7: Explica con interés y curiosidad las leyes de Faraday y Lentz y sus aplicaciones para el desarrollo tecnológico.',
-                question: "¿Cómo afecta la velocidad de un imán que atraviesa una espiral al voltaje inducido?",
-                options: [
-                    { value: 'a', text: "A mayor velocidad, mayor voltaje inducido." },
-                    { value: 'b', text: "A mayor velocidad, menor voltaje inducido." },
-                    { value: 'c', text: "La velocidad no afecta el voltaje inducido." },
-                    { value: 'd', text: "Depende del material del imán." }
-                ]
-            },
-            {
-                id: 'q35',
-                indicator: 'Indicador 4.7: Explica con interés y curiosidad las leyes de Faraday y Lentz y sus aplicaciones para el desarrollo tecnológico.',
-                question: "¿Qué aplicación tecnológica se basa en la Ley de Faraday?",
-                options: [
-                    { value: 'a', text: "Transformadores eléctricos." },
-                    { value: 'b', text: "Baterías recargables." },
-                    { value: 'c', text: "Circuitos integrados." },
-                    { value: 'd', text: "Sensores ópticos." }
-                ]
-            },
-            // Indicador 4.8
-            {
-                id: 'q36',
-                indicator: 'Indicador 4.8: Calcula con seguridad el flujo magnético que pasa a través de un espiral.',
-                question: "¿Qué es el flujo magnético?",
-                options: [
-                    { value: 'a', text: "La medida del campo magnético que pasa a través de una superficie." },
-                    { value: 'b', text: "La cantidad de corriente en un circuito." },
-                    { value: 'c', text: "La fuerza sobre un imán en un campo magnético." },
-                    { value: 'd', text: "La energía almacenada en un campo magnético." }
-                ]
-            },
-            {
-                id: 'q37',
-                indicator: 'Indicador 4.8: Calcula con seguridad el flujo magnético que pasa a través de un espiral.',
-                question: "¿Cómo se calcula el flujo magnético a través de una espiral?",
-                options: [
-                    { value: 'a', text: "Multiplicando la intensidad del campo magnético por el área de la espiral y el coseno del ángulo entre el campo y la normal a la espiral." },
-                    { value: 'b', text: "Multiplicando la intensidad del campo magnético por la resistencia de la espiral." },
-                    { value: 'c', text: "Multiplicando el voltaje por la corriente en la espiral." },
-                    { value: 'd', text: "Dividiendo la intensidad del campo magnético por el área de la espiral." }
-                ]
-            },
-            {
-                id: 'q38',
-                indicator: 'Indicador 4.8: Calcula con seguridad el flujo magnético que pasa a través de un espiral.',
-                question: "Si se aumenta el número de espiras en una espiral, ¿qué ocurre con el flujo magnético total?",
-                options: [
-                    { value: 'a', text: "El flujo magnético total aumenta." },
-                    { value: 'b', text: "El flujo magnético total disminuye." },
-                    { value: 'c', text: "El flujo magnético total permanece constante." },
-                    { value: 'd', text: "Depende de la resistencia de la espiral." }
-                ]
-            },
-            {
-                id: 'q39',
-                indicator: 'Indicador 4.8: Calcula con seguridad el flujo magnético que pasa a través de un espiral.',
-                question: "¿Qué unidad se utiliza para medir el flujo magnético?",
-                options: [
-                    { value: 'a', text: "Weber" },
-                    { value: 'b', text: "Tesla" },
-                    { value: 'c', text: "Amperio" },
-                    { value: 'd', text: "Voltio" }
-                ]
-            },
-            {
-                id: 'q40',
-                indicator: 'Indicador 4.8: Calcula con seguridad el flujo magnético que pasa a través de un espiral.',
-                question: "Si el campo magnético a través de una espiral se invierte, ¿qué sucede con el flujo magnético?",
-                options: [
-                    { value: 'a', text: "El flujo magnético cambia de signo." },
-                    { value: 'b', text: "El flujo magnético se reduce a cero." },
-                    { value: 'c', text: "El flujo magnético se duplica." },
-                    { value: 'd', text: "El flujo magnético no se ve afectado." }
-                ]
-            },
-            // Indicador 4.9
-            {
-                id: 'q41',
-                indicator: 'Indicador 4.9: Indaga y describe con interés los diferentes tipos de transformadores, funcionamiento y usos en la vida cotidiana.',
-                question: "¿Qué tipo de transformador se utiliza para aumentar el voltaje?",
-                options: [
-                    { value: 'a', text: "Transformador elevador." },
-                    { value: 'b', text: "Transformador reductor." },
-                    { value: 'c', text: "Transformador de aislamiento." },
-                    { value: 'd', text: "Transformador de corriente." }
-                ]
-            },
-            {
-                id: 'q42',
-                indicator: 'Indicador 4.9: Indaga y describe con interés los diferentes tipos de transformadores, funcionamiento y usos en la vida cotidiana.',
-                question: "¿Cómo funciona un transformador reductor?",
-                options: [
-                    { value: 'a', text: "Reduce el voltaje de entrada para obtener un voltaje de salida más bajo." },
-                    { value: 'b', text: "Aumenta el voltaje de entrada para obtener un voltaje de salida más alto." },
-                    { value: 'c', text: "Convierte corriente alterna en corriente continua." },
-                    { value: 'd', text: "Mantiene constante el voltaje de entrada y salida." }
-                ]
-            },
-            {
-                id: 'q43',
-                indicator: 'Indicador 4.9: Indaga y describe con interés los diferentes tipos de transformadores, funcionamiento y usos en la vida cotidiana.',
-                question: "¿Qué parte de un transformador es responsable de transferir la energía eléctrica de un circuito a otro?",
-                options: [
-                    { value: 'a', text: "El núcleo de hierro." },
-                    { value: 'b', text: "Las bobinas primarias y secundarias." },
-                    { value: 'c', text: "El conmutador." },
-                    { value: 'd', text: "El interruptor de circuito." }
-                ]
-            },
-            {
-                id: 'q44',
-                indicator: 'Indicador 4.9: Indaga y describe con interés los diferentes tipos de transformadores, funcionamiento y usos en la vida cotidiana.',
-                question: "¿Cuál es el uso principal de los transformadores en el suministro de energía eléctrica?",
-                options: [
-                    { value: 'a', text: "Ajustar los niveles de voltaje para la distribución eficiente de la energía." },
-                    { value: 'b', text: "Aumentar la resistencia en los circuitos eléctricos." },
-                    { value: 'c', text: "Reducir la capacidad de corriente en la red." },
-                    { value: 'd', text: "Almacenar energía para emergencias." }
-                ]
-            },
-            {
-                id: 'q45',
-                indicator: 'Indicador 4.9: Indaga y describe con interés los diferentes tipos de transformadores, funcionamiento y usos en la vida cotidiana.',
-                question: "¿Qué tipo de transformador se utiliza en los cargadores de dispositivos electrónicos para convertir la alta tensión en baja tensión?",
-                options: [
-                    { value: 'a', text: "Transformador reductor." },
-                    { value: 'b', text: "Transformador elevador." },
-                    { value: 'c', text: "Transformador de aislamiento." },
-                    { value: 'd', text: "Transformador de corriente." }
-                ]
-            },
-            // Indicador 4.10
-            {
-                id: 'q46',
-                indicator: 'Indicador 4.10: Indaga, explica y construye con creatividad aparatos electromagnéticos: motor eléctrico, timbres, electroimán, generadores y otros.',
-                question: "¿Qué principio físico se utiliza para hacer funcionar un motor eléctrico?",
-                options: [
-                    { value: 'a', text: "La interacción entre corriente eléctrica y campo magnético." },
-                    { value: 'b', text: "La ley de la conservación de la energía." },
-                    { value: 'c', text: "La inducción electrostática." },
-                    { value: 'd', text: "La interacción entre dos campos eléctricos." }
-                ]
-            },
-            {
-                id: 'q47',
-                indicator: 'Indicador 4.10: Indaga, explica y construye con creatividad aparatos electromagnéticos: motor eléctrico, timbres, electroimán, generadores y otros.',
-                question: "¿Qué dispositivo convierte energía eléctrica en energía mecánica?",
-                options: [
-                    { value: 'a', text: "Motor eléctrico." },
-                    { value: 'b', text: "Generador eléctrico." },
-                    { value: 'c', text: "Transformador." },
-                    { value: 'd', text: "Electroimán." }
-                ]
-            },
-            {
-                id: 'q48',
-                indicator: 'Indicador 4.10: Indaga, explica y construye con creatividad aparatos electromagnéticos: motor eléctrico, timbres, electroimán, generadores y otros.',
                 question: "¿Cuál es la función principal de un electroimán en un timbre eléctrico?",
-                options: [
-                    { value: 'a', text: "Producir sonido mediante la atracción de un martillo hacia una campana." },
-                    { value: 'b', text: "Generar electricidad para alimentar el timbre." },
-                    { value: 'c', text: "Transformar energía mecánica en energía eléctrica." },
-                    { value: 'd', text: "Almacenar energía eléctrica para su uso posterior." }
+                answers: [
+                    { text: "Producir sonido mediante la atracción de un martillo hacia una campana.", correct: true },
+                    { text: "Generar electricidad para alimentar el timbre.", correct: false },
+                    { text: "Transformar energía mecánica en energía eléctrica.", correct: false },
+                    { text: "Almacenar energía eléctrica para su uso posterior.", correct: false }
                 ]
             },
             {
-                id: 'q49',
-                indicator: 'Indicador 4.10: Indaga, explica y construye con creatividad aparatos electromagnéticos: motor eléctrico, timbres, electroimán, generadores y otros.',
-                question: "¿Cómo se genera electricidad en un generador eléctrico?",
-                options: [
-                    { value: 'a', text: "Al hacer girar una espira en un campo magnético." },
-                    { value: 'b', text: "Al aplicar una corriente directa a un circuito cerrado." },
-                    { value: 'c', text: "Al conectar el generador a una batería." },
-                    { value: 'd', text: "Al calentar un material conductor." }
-                ]
-            },
-            {
-                id: 'q50',
-                indicator: 'Indicador 4.10: Indaga, explica y construye con creatividad aparatos electromagnéticos: motor eléctrico, timbres, electroimán, generadores y otros.',
                 question: "¿Qué componente es crucial para que un generador eléctrico funcione?",
-                options: [
-                    { value: 'a', text: "Una espira giratoria en un campo magnético." },
-                    { value: 'b', text: "Un electrodo de cobre." },
-                    { value: 'c', text: "Un interruptor de circuito." },
-                    { value: 'd', text: "Un imán permanente." }
+                answers: [
+                    { text: "Una espira giratoria en un campo magnético.", correct: true },
+                    { text: "Un electrodo de cobre.", correct: false },
+                    { text: "Un interruptor de circuito.", correct: false },
+                    { text: "Un imán permanente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se genera electricidad en un generador eléctrico?",
+                answers: [
+                    { text: "Al hacer girar una espira en un campo magnético.", correct: true },
+                    { text: "Al aplicar una corriente directa a un circuito cerrado.", correct: false },
+                    { text: "Al conectar el generador a una batería.", correct: false },
+                    { text: "Al calentar un material conductor.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué parte de un transformador es responsable de transferir la energía eléctrica de un circuito a otro?",
+                answers: [
+                    { text: "El núcleo de hierro.", correct: false },
+                    { text: "Las bobinas primarias y secundarias.", correct: true },
+                    { text: "El conmutador.", correct: false },
+                    { text: "El interruptor de circuito.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué fenómeno explica la Ley de Faraday en un generador eléctrico?",
+                answers: [
+                    { text: "La conversión de energía mecánica en energía eléctrica.", correct: true },
+                    { text: "La conversión de energía eléctrica en energía mecánica.", correct: false },
+                    { text: "La acumulación de carga en un condensador.", correct: false },
+                    { text: "La disminución de la resistencia en un circuito.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la aplicación de un transformador en la vida cotidiana?",
+                answers: [
+                    { text: "Convertir el voltaje de la corriente eléctrica para su uso en diferentes dispositivos.", correct: true },
+                    { text: "Generar electricidad a partir de energía solar.", correct: false },
+                    { text: "Almacenar energía en baterías.", correct: false },
+                    { text: "Reducir el consumo de electricidad en el hogar.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué ocurre cuando dos polos iguales de dos imanes se acercan?",
+                answers: [
+                    { text: "Se repelen.", correct: true },
+                    { text: "Se atraen.", correct: false },
+                    { text: "Se neutralizan.", correct: false },
+                    { text: "No hay interacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué sucede cuando un imán es expuesto a altas temperaturas?",
+                answers: [
+                    { text: "Puede perder sus propiedades magnéticas.", correct: true },
+                    { text: "Se vuelve más fuerte.", correct: false },
+                    { text: "No se ve afectado.", correct: false },
+                    { text: "Cambia la dirección de sus polos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué propiedad de un imán determina la fuerza de atracción o repulsión entre dos imanes?",
+                answers: [
+                    { text: "La magnitud de sus polos magnéticos.", correct: true },
+                    { text: "La temperatura del ambiente.", correct: false },
+                    { text: "La velocidad relativa entre ellos.", correct: false },
+                    { text: "El tipo de material de los imanes.", correct: false }
+                ]
+            },
+            {
+                question: "Si el campo magnético a través de una espiral se invierte, ¿qué sucede con el flujo magnético?",
+                answers: [
+                    { text: "El flujo magnético cambia de signo.", correct: true },
+                    { text: "El flujo magnético se reduce a cero.", correct: false },
+                    { text: "El flujo magnético se duplica.", correct: false },
+                    { text: "El flujo magnético no se ve afectado.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se representa matemáticamente la Ley de Gauss para el magnetismo?",
+                answers: [
+                    { text: "∮B·dA = 0", correct: true },
+                    { text: "∮E·dA = q/ε₀", correct: false },
+                    { text: "∮B·dl = μ₀I", correct: false },
+                    { text: "∮E·dl = -dΦB/dt", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué unidad se utiliza para medir el flujo magnético?",
+                answers: [
+                    { text: "Weber", correct: true },
+                    { text: "Tesla", correct: false },
+                    { text: "Amperio", correct: false },
+                    { text: "Voltio", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué relación existe entre el spin de un electrón y su campo magnético?",
+                answers: [
+                    { text: "El spin genera un pequeño campo magnético debido al movimiento de la carga.", correct: true },
+                    { text: "El spin no afecta el campo magnético.", correct: false },
+                    { text: "El spin genera un campo eléctrico.", correct: false },
+                    { text: "El spin cancela cualquier campo magnético.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece la ley de Lorentz sobre la fuerza magnética?",
+                answers: [
+                    { text: "La fuerza magnética es perpendicular a la velocidad de la carga y al campo magnético.", correct: true },
+                    { text: "La fuerza magnética es paralela al campo magnético.", correct: false },
+                    { text: "La fuerza magnética depende del cuadrado de la velocidad.", correct: false },
+                    { text: "La fuerza magnética es inversamente proporcional a la carga de la partícula.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se denomina el campo magnético de la Tierra?",
+                answers: [
+                    { text: "Magnetósfera", correct: true },
+                    { text: "Geomagnetismo", correct: false },
+                    { text: "Geofield", correct: false },
+                    { text: "Magnetar", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un electroimán?",
+                answers: [
+                    { text: "Un imán que funciona con electricidad.", correct: true },
+                    { text: "Un imán natural que no requiere electricidad.", correct: false },
+                    { text: "Un imán que pierde su magnetismo en ausencia de electricidad.", correct: false },
+                    { text: "Un imán que solo funciona a bajas temperaturas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se calcula el flujo magnético a través de una espiral?",
+                answers: [
+                    { text: "Multiplicando la intensidad del campo magnético por el área de la espiral y el coseno del ángulo entre el campo y la normal a la espiral.", correct: true },
+                    { text: "Multiplicando la intensidad del campo magnético por la resistencia de la espiral.", correct: false },
+                    { text: "Multiplicando el voltaje por la corriente en la espiral.", correct: false },
+                    { text: "Dividiendo la intensidad del campo magnético por el área de la espiral.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo afecta la velocidad de un imán que atraviesa una espiral al voltaje inducido?",
+                answers: [
+                    { text: "A mayor velocidad, mayor voltaje inducido.", correct: true },
+                    { text: "A mayor velocidad, menor voltaje inducido.", correct: false },
+                    { text: "La velocidad no afecta el voltaje inducido.", correct: false },
+                    { text: "Depende del material del imán.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué sucede con la magnitud de la fuerza magnética si se duplica la velocidad de la carga en un campo magnético constante?",
+                answers: [
+                    { text: "La fuerza magnética se duplica.", correct: true },
+                    { text: "La fuerza magnética se reduce a la mitad.", correct: false },
+                    { text: "La fuerza magnética se cuadruplica.", correct: false },
+                    { text: "La fuerza magnética permanece constante.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la relación entre la temperatura y la magnetización de un material ferromagnético?",
+                answers: [
+                    { text: "La magnetización disminuye con la temperatura.", correct: true },
+                    { text: "La magnetización aumenta con la temperatura.", correct: false },
+                    { text: "No hay relación.", correct: false },
+                    { text: "Depende del material.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un imán permanente?",
+                answers: [
+                    { text: "Un imán que mantiene su magnetismo sin necesidad de una corriente eléctrica.", correct: true },
+                    { text: "Un imán que requiere de una corriente eléctrica para funcionar.", correct: false },
+                    { text: "Un imán que solo funciona a bajas temperaturas.", correct: false },
+                    { text: "Un imán que solo funciona en presencia de otro imán.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué dispositivo utiliza un electroimán para producir sonido?",
+                answers: [
+                    { text: "Un altavoz.", correct: true },
+                    { text: "Un transformador.", correct: false },
+                    { text: "Un motor eléctrico.", correct: false },
+                    { text: "Un generador eléctrico.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la dirección de la fuerza magnética sobre una carga positiva en movimiento en un campo magnético?",
+                answers: [
+                    { text: "Perpendicular tanto a la velocidad de la carga como al campo magnético.", correct: true },
+                    { text: "En la misma dirección que la velocidad de la carga.", correct: false },
+                    { text: "Paralela al campo magnético.", correct: false },
+                    { text: "Perpendicular al campo magnético pero en la dirección de la velocidad de la carga.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el momento magnético orbital?",
+                answers: [
+                    { text: "El campo magnético generado por el electrón en su órbita.", correct: true },
+                    { text: "La cantidad de movimiento del electrón en su órbita.", correct: false },
+                    { text: "La fuerza de atracción entre el núcleo y el electrón.", correct: false },
+                    { text: "El torque sobre un electrón en un campo eléctrico.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece la Ley de Faraday sobre la inducción electromagnética?",
+                answers: [
+                    { text: "Un cambio en el flujo magnético induce una corriente eléctrica.", correct: true },
+                    { text: "Un cambio en la corriente induce un campo magnético.", correct: false },
+                    { text: "Un campo magnético constante induce una corriente eléctrica.", correct: false },
+                    { text: "Un cambio en la temperatura induce una corriente eléctrica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Por qué la Ley de Gauss para el magnetismo implica que no existen monopolos magnéticos?",
+                answers: [
+                    { text: "Porque el flujo magnético neto siempre es cero.", correct: true },
+                    { text: "Porque los polos magnéticos siempre existen en pares.", correct: false },
+                    { text: "Porque los monopolos magnéticos no tienen carga.", correct: false },
+                    { text: "Porque el campo magnético es uniforme.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué tipo de transformador se utiliza para aumentar el voltaje?",
+                answers: [
+                    { text: "Transformador elevador.", correct: true },
+                    { text: "Transformador reductor.", correct: false },
+                    { text: "Transformador de aislamiento.", correct: false },
+                    { text: "Transformador de corriente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece la Ley de Gauss para el magnetismo?",
+                answers: [
+                    { text: "El flujo magnético total a través de una superficie cerrada es cero.", correct: true },
+                    { text: "El flujo magnético total a través de una superficie cerrada es constante.", correct: false },
+                    { text: "El flujo magnético total a través de una superficie cerrada depende de la corriente.", correct: false },
+                    { text: "El flujo magnético total a través de una superficie cerrada es infinito.", correct: false }
+                ]
+            },
+            {
+                question: "Una partícula con carga positiva se mueve hacia el norte en un campo magnético que apunta hacia abajo (hacia la Tierra). ¿En qué dirección actúa la fuerza magnética sobre la partícula?",
+                answers: [
+                    { text: "Hacia el este.", correct: true },
+                    { text: "Hacia el oeste.", correct: false },
+                    { text: "Hacia arriba.", correct: false },
+                    { text: "Hacia abajo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué principio físico se utiliza para hacer funcionar un motor eléctrico?",
+                answers: [
+                    { text: "La interacción entre corriente eléctrica y campo magnético.", correct: true },
+                    { text: "La ley de la conservación de la energía.", correct: false },
+                    { text: "La inducción electrostática.", correct: false },
+                    { text: "La interacción entre dos campos eléctricos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué dispositivo convierte energía eléctrica en energía mecánica?",
+                answers: [
+                    { text: "Motor eléctrico.", correct: true },
+                    { text: "Generador eléctrico.", correct: false },
+                    { text: "Transformador.", correct: false },
+                    { text: "Electroimán.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se utiliza el principio del electromagnetismo en los motores eléctricos?",
+                answers: [
+                    { text: "Para convertir energía eléctrica en energía mecánica.", correct: true },
+                    { text: "Para convertir energía mecánica en energía eléctrica.", correct: false },
+                    { text: "Para almacenar energía en un campo magnético.", correct: false },
+                    { text: "Para reducir la resistencia en un circuito.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué implica la Ley de Gauss para el magnetismo sobre las líneas de campo magnético?",
+                answers: [
+                    { text: "Las líneas de campo magnético no tienen origen ni fin.", correct: true },
+                    { text: "Las líneas de campo magnético comienzan y terminan en cargas.", correct: false },
+                    { text: "Las líneas de campo magnético son perpendiculares a la superficie.", correct: false },
+                    { text: "Las líneas de campo magnético se dispersan infinitamente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál de los siguientes materiales es ferromagnético?",
+                answers: [
+                    { text: "Hierro", correct: true },
+                    { text: "Cobre", correct: false },
+                    { text: "Plata", correct: false },
+                    { text: "Aluminio", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el momento dipolar magnético?",
+                answers: [
+                    { text: "La medida del campo magnético generado por un dipolo magnético.", correct: true },
+                    { text: "La fuerza entre dos polos magnéticos.", correct: false },
+                    { text: "La energía almacenada en un campo magnético.", correct: false },
+                    { text: "La distancia entre los polos de un imán.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo describe la Ley de Lenz la dirección de la corriente inducida?",
+                answers: [
+                    { text: "La corriente inducida se opone al cambio en el flujo magnético que la produjo.", correct: true },
+                    { text: "La corriente inducida sigue la dirección del cambio en el flujo magnético.", correct: false },
+                    { text: "La corriente inducida no depende del flujo magnético.", correct: false },
+                    { text: "La corriente inducida es perpendicular al cambio en el flujo magnético.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el flujo magnético?",
+                answers: [
+                    { text: "La medida del campo magnético que pasa a través de una superficie.", correct: true },
+                    { text: "La cantidad de corriente en un circuito.", correct: false },
+                    { text: "La fuerza sobre un imán en un campo magnético.", correct: false },
+                    { text: "La energía almacenada en un campo magnético.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la principal causa del campo magnético de la Tierra?",
+                answers: [
+                    { text: "El flujo de hierro fundido en el núcleo externo.", correct: true },
+                    { text: "El movimiento de los continentes.", correct: false },
+                    { text: "La rotación de la Tierra.", correct: false },
+                    { text: "La atracción gravitacional de la Luna.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es el uso principal de los transformadores en el suministro de energía eléctrica?",
+                answers: [
+                    { text: "Ajustar los niveles de voltaje para la distribución eficiente de la energía.", correct: true },
+                    { text: "Aumentar la resistencia en los circuitos eléctricos.", correct: false },
+                    { text: "Reducir la capacidad de corriente en la red.", correct: false },
+                    { text: "Almacenar energía para emergencias.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué tipo de transformador se utiliza en los cargadores de dispositivos electrónicos para convertir la alta tensión en baja tensión?",
+                answers: [
+                    { text: "Transformador reductor.", correct: true },
+                    { text: "Transformador elevador.", correct: false },
+                    { text: "Transformador de aislamiento.", correct: false },
+                    { text: "Transformador de corriente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál de las siguientes afirmaciones es consecuencia directa de la Ley de Gauss para el magnetismo?",
+                answers: [
+                    { text: "El campo magnético es un campo vectorial sin divergencia.", correct: true },
+                    { text: "El campo magnético es un campo vectorial divergente.", correct: false },
+                    { text: "El campo magnético es un campo vectorial con carga neta.", correct: false },
+                    { text: "El campo magnético es un campo escalar sin divergencia.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué aplicación tecnológica se basa en la Ley de Faraday?",
+                answers: [
+                    { text: "Transformadores eléctricos.", correct: true },
+                    { text: "Baterías recargables.", correct: false },
+                    { text: "Circuitos integrados.", correct: false },
+                    { text: "Sensores ópticos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la fuente primaria del campo magnético a nivel atómico?",
+                answers: [
+                    { text: "El movimiento de los electrones alrededor del núcleo.", correct: true },
+                    { text: "La interacción entre protones y neutrones.", correct: false },
+                    { text: "El campo gravitacional del núcleo.", correct: false },
+                    { text: "La presencia de quarks en los nucleones.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo funciona un transformador reductor?",
+                answers: [
+                    { text: "Reduce el voltaje de entrada para obtener un voltaje de salida más bajo.", correct: true },
+                    { text: "Aumenta el voltaje de entrada para obtener un voltaje de salida más alto.", correct: false },
+                    { text: "Convierte corriente alterna en corriente continua.", correct: false },
+                    { text: "Mantiene constante el voltaje de entrada y salida.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se denomina el campo magnético generado por el spin de un electrón?",
+                answers: [
+                    { text: "Campo magnético intrínseco.", correct: true },
+                    { text: "Campo magnético orbital.", correct: false },
+                    { text: "Campo gravitacional.", correct: false },
+                    { text: "Campo de interacción fuerte.", correct: false }
+                ]
+            },
+            {
+                question: "Si se aumenta el número de espiras en una espiral, ¿qué ocurre con el flujo magnético total?",
+                answers: [
+                    { text: "El flujo magnético total aumenta.", correct: true },
+                    { text: "El flujo magnético total disminuye.", correct: false },
+                    { text: "El flujo magnético total permanece constante.", correct: false },
+                    { text: "Depende de la resistencia de la espiral.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la diferencia entre un imán natural y un imán artificial?",
+                answers: [
+                    { text: "Los imanes naturales ocurren en la naturaleza, mientras que los artificiales son creados por el hombre.", correct: true },
+                    { text: "Los imanes naturales son más fuertes que los artificiales.", correct: false },
+                    { text: "Los imanes naturales son temporales, mientras que los artificiales son permanentes.", correct: false },
+                    { text: "Los imanes naturales solo existen en la Tierra, mientras que los artificiales están en el espacio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué sucede cuando se corta un imán en dos partes?",
+                answers: [
+                    { text: "Cada parte se convierte en un dipolo magnético completo.", correct: true },
+                    { text: "Se obtiene un monopolo magnético.", correct: false },
+                    { text: "Se pierde la capacidad magnética.", correct: false },
+                    { text: "El magnetismo se concentra en un extremo.", correct: false }
                 ]
             }
         ];
 
-        const correctAnswerKeys = { 
-            q1: 'b', q2: 'c', q3: 'a', q4: 'b', q5: 'b',
-            q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'b',
-            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a',
-            q16: 'a', q17: 'b', q18: 'a', q19: 'a', q20: 'a',
-            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a',
-            q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a',
-            q31: 'a', q32: 'a', q33: 'a', q34: 'a', q35: 'a',
-            q36: 'a', q37: 'a', q38: 'a', q39: 'a', q40: 'a',
-            q41: 'a', q42: 'a', q43: 'b', q44: 'a', q45: 'a',
-            q46: 'a', q47: 'a', q48: 'a', q49: 'a', q50: 'a'
-        };
+        const authorizedNIEs = [
+            "4267837", "3850952", "3851018", "5032035", "19806181", "6297536",
+            "2608724", "6262810", "4267838", "20162435", "3850923", "19806209",
+            "4267828", "3850942"
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 2;
+        const evaluationName = "Evaluación Unidad 4: Fenómenos Electromagnéticos";
+        let timer;
+        let timeLeft = 1800; // 30 minutos en segundos
+        let startTime;
+        let manipulationCount = 0;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -686,99 +659,190 @@
             return array;
         }
 
-        function displayQuestions() {
-            const container = document.getElementById('questions-container');
-            const shuffledQuestions = shuffle([...questions]);
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            
+            // Shuffle questions and answers
+            const shuffledQuizData = shuffle([...quizData]);
 
-            shuffledQuestions.forEach((q, index) => {
-                const questionElement = document.createElement('div');
-                questionElement.classList.add('question');
-                questionElement.innerHTML = `
-                    <h3>${q.indicator}</h3>
-                    <p>${index + 1}. ${q.question}</p>
-                    ${q.options.map(option => `
-                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
-                    `).join('')}
-                `;
-                container.appendChild(questionElement);
+            shuffledQuizData.forEach((data, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question';
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerText = `${index + 1}. ${data.question}`;
+                questionContainer.appendChild(questionTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                shuffle(data.answers).forEach(answer => {
+                    const option = document.createElement('li');
+                    const optionLabel = document.createElement('label');
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question${index}`;
+                    optionInput.value = answer.correct;
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(answer.text));
+                    option.appendChild(optionLabel);
+                    optionsList.appendChild(option);
+                });
+
+                questionContainer.appendChild(optionsList);
+                quizContainer.appendChild(questionContainer);
             });
         }
 
-        function startTimer() {
-            document.getElementById('timer').classList.remove('hidden');
-            startTime = new Date();
-            const timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                if (timeRemaining === 0) {
-                    clearInterval(timerInterval);
-                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
-                }
-                timeRemaining--;
-            }, 1000);
-        }
-
-        document.getElementById('infoForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const name = document.getElementById('name').value;
-            const nie = document.getElementById('nie').value;
-
-            if (!nieList.includes(nie)) {
-                alert("NIE no autorizado.");
+        function submitQuiz() {
+            const fullname = document.getElementById('fullname').value.trim();
+            const nie = document.getElementById('nie').value.trim();
+            
+            if (!fullname || !nie) {
+                alert('Por favor, ingresa tu nombre completo y NIE.');
                 return;
             }
 
-            document.getElementById('studentInfoForm').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
-            displayQuestions();
-            startTimer();
-        });
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
 
-        document.getElementById('submitQuiz').addEventListener('click', function () {
-            let correctAnswers = 0;
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
             let incorrectAnswers = [];
 
-            questions.forEach(q => {
-                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
-                if (selectedAnswer) {
-                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
-                        correctAnswers++;
-                    } else {
-                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
-                    }
+            quizData.forEach((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                if (selected === false || selected === null) {
+                    incorrectAnswers.push(index + 1);
                 }
             });
 
-            const score = (correctAnswers / questions.length) * 10;
+            // Mostrar los resultados en el modal
+            document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
+            document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
+            const modalIncorrectAnswers = document.getElementById('modalIncorrectAnswers');
+            modalIncorrectAnswers.innerHTML = '';
+            incorrectAnswers.forEach((questionNumber, index) => {
+                const div = document.createElement('div');
+                div.innerText = `Pregunta ${questionNumber}`;
+                modalIncorrectAnswers.appendChild(div);
+            });
+
+            // Mostrar detalles adicionales
             const endTime = new Date();
-            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
+            const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+            const currentDate = new Date();
+            const modalDetails = document.getElementById('modalDetails');
+            modalDetails.innerHTML = `
+                Fecha: ${currentDate.toLocaleDateString()}<br>
+                Hora: ${currentDate.toLocaleTimeString()}<br>
+                Tiempo en realizar la prueba: ${timeTaken} segundos<br>
+                Nombre de la unidad: ${evaluationName}<br>
+                Calificación: ${((quizData.length - incorrectAnswers.length) / quizData.length * 10).toFixed(2)}/10
+            `;
 
-            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
-        });
+            // Mostrar intentos de manipulación
+            document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
 
-        function showResults(scoreText, incorrectAnswers, timeTaken) {
-            const date = new Date();
-            const minutesTaken = Math.floor(timeTaken / 60);
-            const secondsTaken = timeTaken % 60;
+            // Mostrar contador de reintentos
+            document.getElementById('attemptCount').innerText = `Reintentos: ${attempt + 1}`;
 
-            document.getElementById('quiz').classList.add('hidden');
-            document.getElementById('resultsModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            const modal = document.getElementById('resultModal');
+            modal.style.display = 'block';
 
-            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
-            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 4: Fenómenos Electromagnéticos`;
-            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
-            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
-            document.getElementById('score').textContent = scoreText;
-            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                // Aquí puedes agregar código para bloquear la MAC o deshabilitar la evaluación
+            }
         }
 
-        document.getElementById('closeModal').addEventListener('click', function () {
-            document.getElementById('resultsModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        document.getElementById('startQuiz').addEventListener('click', function() {
+            const nie = document.getElementById('nie').value.trim();
+            if (!authorizedNIEs.includes(nie)) {
+                alert('NIE no autorizado.');
+                return;
+            }
+            document.querySelector('.quiz-container').style.display = 'block';
+            document.getElementById('infoModal').style.display = 'none';
+            startTime = new Date();
+            startTimer();
+            loadQuiz();
         });
+
+        // Modal close functionality
+        const closeModal = document.getElementsByClassName('close')[0];
+        closeModal.onclick = function() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('resultModal')) {
+                document.getElementById('resultModal').style.display = 'none';
+            }
+        }
+
+        document.addEventListener("contextmenu", function(e){
+            e.preventDefault();
+            updateCaptureCount();
+        }, false);
+
+        function startTimer() {
+            timer = setInterval(function() {
+                timeLeft--;
+                const timerElement = document.getElementById('timer');
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerElement.innerText = `${minutes}:${seconds}`;
+
+                if (timeLeft <= 600) {
+                    timerElement.style.backgroundColor = 'red';
+                } else if (timeLeft <= 1200) {
+                    timerElement.style.backgroundColor = 'orange';
+                } else {
+                    timerElement.style.backgroundColor = 'green';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateCaptureCount() {
+            manipulationCount++;
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                updateCaptureCount();
+            }
+        });
+
+        window.addEventListener('pagehide', function() {
+            updateCaptureCount();
+        });
+
+        window.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            updateCaptureCount();
+        });
+
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                updateCaptureCount();
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
     </script>
 </body>
 </html>
